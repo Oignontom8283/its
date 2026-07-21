@@ -2,5 +2,9 @@
 name = "its"
 version = "0.1.0"
 edition = "2024"
+authors = ["Oignontom8283"]
+description = "Interactive Terminal's Selector - A fast, CLI-oriented user selection tool. (Work In Progress)"
+license = "GPL-v3"
+repository = "https://github.com/Oignontom8283/its"
 
 [dependencies]
