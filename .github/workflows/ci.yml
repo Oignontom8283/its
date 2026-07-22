@@ -26,7 +26,7 @@ jobs:
         with:
           shared-key: "its-ci-cache"
           cache-on-failure: "true"
-          # écrit uniquement si build ne tourne pas dans ce run
+          # write only if build is not running in this run
           save-if: ${{ !(github.event_name == 'pull_request' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') }}
       - run: cargo check --all-targets
 
@@ -42,7 +42,7 @@ jobs:
         with:
           shared-key: "its-ci-cache"
           cache-on-failure: "true"
-          save-if: "false"   # clippy n'écrit jamais, quel que soit le cas
+          save-if: "false"   # clippy never writes, in any case
       - run: cargo clippy --all-targets -- -D warnings
 
   build:
@@ -56,5 +56,5 @@ jobs:
         with:
           shared-key: "its-ci-cache"
           cache-on-failure: "true"
-          save-if: "true"   # écrit toujours quand il tourne
+          save-if: "true"   # always writes when it runs
       - run: cargo build --verbose
