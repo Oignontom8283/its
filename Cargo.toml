@@ -4,7 +4,7 @@ version = "0.0.1"
 edition = "2024"
 authors = ["Oignontom8283"]
 description = "Interactive Terminal's Selector - A fast, CLI-oriented user selection tool. (Work In Progress)"
-license = "GPL-v3"
+license = "GPL-3.0"
 repository = "https://github.com/Oignontom8283/its"
 
 [dependencies]
