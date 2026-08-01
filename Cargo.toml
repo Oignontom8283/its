@@ -1,6 +1,6 @@
 [package]
 name = "its"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2024"
 authors = ["Oignontom8283"]
 description = "Interactive Terminal's Selector - A fast, CLI-oriented user selection tool. (Work In Progress)"

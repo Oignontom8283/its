@@ -1,0 +1,303 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.release.tag_name }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    name: Verify version
+    runs-on: ubuntu-latest
+    outputs:
+      bin_name: ${{ steps.meta.outputs.bin_name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Read package metadata (name + version)
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          pkg_name=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[0].name')
+          pkg_version=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[0].version')
+          echo "bin_name=${pkg_name}" >> "$GITHUB_OUTPUT"
+          echo "Package name: ${pkg_name}"
+          echo "Package version: ${pkg_version}"
+
+      - name: Compare release tag vs Cargo.toml version
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_version="${{ github.event.release.tag_name }}"
+          tag_version="${tag_version#v}"
+          cargo_version=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[0].version')
+          if [ "$tag_version" != "$cargo_version" ]; then
+            echo "::error::Release tag version (${tag_version}) does not match Cargo.toml version (${cargo_version})"
+            exit 1
+          fi
+          echo "Versions match: ${tag_version}"
+
+  build:
+    name: Build (${{ matrix.target }})
+    needs: verify
+    env:
+      BIN_NAME: ${{ needs.verify.outputs.bin_name }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            ext: ".exe"
+
+          - target: aarch64-pc-windows-msvc
+            os: windows-latest
+            ext: ".exe"
+
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            ext: ""
+            use_cross: true
+
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            ext: ""
+            use_cross: true
+
+          - target: armv7-unknown-linux-musleabihf
+            os: ubuntu-latest
+            ext: ""
+            use_cross: true
+
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            ext: ""
+
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            ext: ""
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "release-${{ matrix.target }}"
+          cache-on-failure: "true"
+          save-if: "true"
+
+      - name: Install cross
+        if: matrix.use_cross
+        uses: taiki-e/install-action@cross
+
+      - name: Build (cross)
+        if: matrix.use_cross
+        run: cross build --release --locked --target ${{ matrix.target }}
+
+      - name: Build (cargo)
+        if: ${{ !matrix.use_cross }}
+        run: cargo build --release --locked --target ${{ matrix.target }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: raw-${{ matrix.target }}
+          path: target/${{ matrix.target }}/release/${{ env.BIN_NAME }}${{ matrix.ext }}
+          if-no-files-found: error
+
+  package:
+    name: Package (${{ matrix.target }})
+    needs:
+      - verify
+      - build
+    env:
+      BIN_NAME: ${{ needs.verify.outputs.bin_name }}
+      TAG: ${{ github.event.release.tag_name }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - target: x86_64-pc-windows-msvc
+            archive: zip
+            name: x64-windows
+          - target: aarch64-pc-windows-msvc
+            archive: zip
+            name: arm64-windows
+          - target: x86_64-unknown-linux-musl
+            archive: tar.gz
+            name: x64-linux-static
+          - target: aarch64-unknown-linux-musl
+            archive: tar.gz
+            name: arm64-linux-static
+          - target: armv7-unknown-linux-musleabihf
+            archive: tar.gz
+            name: armv7-linux-static
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: raw-${{ matrix.target }}
+          path: dist
+
+      - name: Archive (zip)
+        if: matrix.archive == 'zip'
+        run: |
+          set -euo pipefail
+          chmod +x "dist/${BIN_NAME}.exe" || true
+          cd dist
+          zip -j "../${BIN_NAME}-${TAG}-portable-${{ matrix.name }}.zip" *
+
+      - name: Archive (tar.gz)
+        if: matrix.archive == 'tar.gz'
+        run: |
+          set -euo pipefail
+          chmod +x "dist/${BIN_NAME}"
+          cd dist
+          tar czf "../${BIN_NAME}-${TAG}-portable-${{ matrix.name }}.tar.gz" *
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.BIN_NAME }}-portable-${{ matrix.name }}
+          path: ${{ env.BIN_NAME }}-${{ env.TAG }}-portable-${{ matrix.name }}.${{ matrix.archive }}
+          if-no-files-found: error
+
+  package-macos-universal:
+    name: Package (macos-universal)
+    needs:
+      - verify
+      - build
+    env:
+      BIN_NAME: ${{ needs.verify.outputs.bin_name }}
+      TAG: ${{ github.event.release.tag_name }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: raw-x86_64-apple-darwin
+          path: bin-x64
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: raw-aarch64-apple-darwin
+          path: bin-arm64
+
+      - name: Merge into a universal binary
+        run: |
+          set -euo pipefail
+          chmod +x "bin-x64/${BIN_NAME}" "bin-arm64/${BIN_NAME}"
+          mkdir -p dist
+          lipo -create -output "dist/${BIN_NAME}" "bin-x64/${BIN_NAME}" "bin-arm64/${BIN_NAME}"
+          lipo -info "dist/${BIN_NAME}"
+          cd dist
+          tar czf "../${BIN_NAME}-${TAG}-portable-macos-universal.tar.gz" "${BIN_NAME}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.BIN_NAME }}-portable-macos-universal
+          path: ${{ env.BIN_NAME }}-${{ env.TAG }}-portable-macos-universal.tar.gz
+          if-no-files-found: error
+
+  attach:
+    name: Attach artifacts to release
+    needs:
+      - verify
+      - package
+      - package-macos-universal
+    env:
+      BIN_NAME: ${{ needs.verify.outputs.bin_name }}
+      TAG: ${{ github.event.release.tag_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download final packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "${{ env.BIN_NAME }}-portable-*"
+          path: artifacts
+          merge-multiple: true
+
+      - name: Build download table
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}"
+
+          win_x64="${base_url}/${BIN_NAME}-${TAG}-portable-x64-windows.zip"
+          win_arm64="${base_url}/${BIN_NAME}-${TAG}-portable-arm64-windows.zip"
+          mac_universal="${base_url}/${BIN_NAME}-${TAG}-portable-macos-universal.tar.gz"
+          linux_x64="${base_url}/${BIN_NAME}-${TAG}-portable-x64-linux-static.tar.gz"
+          linux_arm64="${base_url}/${BIN_NAME}-${TAG}-portable-arm64-linux-static.tar.gz"
+          linux_armv7="${base_url}/${BIN_NAME}-${TAG}-portable-armv7-linux-static.tar.gz"
+
+          cat > table.html << EOF
+          ## Downloads guide for ${BIN_NAME} v${TAG#v}:
+
+          <table>
+            <tr>
+              <th>OS / board</th>
+              <th>x86_64</th>
+              <th>ARM64</th>
+              <th>ARMv7</th>
+            </tr>
+            <tr>
+              <td>Windows</td>
+              <td><a href="${win_x64}">Download</a></td>
+              <td><a href="${win_arm64}">Download</a></td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>Linux (PC / server)</td>
+              <td><a href="${linux_x64}">Download</a></td>
+              <td><a href="${linux_arm64}">Download</a></td>
+              <td><a href="${linux_armv7}">Download</a></td>
+            </tr>
+            <tr>
+              <td>macOS</td>
+              <td colspan="2" align="center"><a href="${mac_universal}">Download (universal)</a></td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>Raspberry Pi 4+</td>
+              <td>-</td>
+              <td><a href="${linux_arm64}">Download</a></td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>Raspberry Pi 3 and older</td>
+              <td>-</td>
+              <td>-</td>
+              <td><a href="${linux_armv7}">Download</a></td>
+            </tr>
+            <tr>
+              <td>Android phone (Termux)</td>
+              <td>-</td>
+              <td><a href="${linux_arm64}">Download</a></td>
+              <td><a href="${linux_armv7}">Download</a></td>
+            </tr>
+          </table>
+          EOF
+
+      - name: Attach to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: artifacts/*
+          fail_on_unmatched_files: true
+          append_body: true
+          body_path: table.html
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
