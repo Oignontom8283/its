@@ -23,4 +23,8 @@ pub struct Cli {
     #[arg(long, num_args = 1, default_missing_value = "true", num_args = 1, default_value_t = true)]
     search: bool,
 
+    /// The default search string.
+    #[arg(long = "search-default", default_value = "")]
+    search_default: String,
+
 }
