@@ -27,4 +27,8 @@ pub struct Cli {
     #[arg(long = "search-default", default_value = "")]
     search_default: String,
 
+    /// Select the search mode to use.
+    #[arg(long = "search-mode", value_enum, default_value_t = SearchMode::Fuzzy)]
+    search_mode: SearchMode,
+
 }
