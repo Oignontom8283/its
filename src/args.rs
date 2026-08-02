@@ -18,5 +18,9 @@ pub struct Cli {
     /// The comment displayed in the header of the UX
     #[arg(short, long)]
     comment: Option<String>,
+    
+    /// Enable search mode.
+    #[arg(long, num_args = 1, default_missing_value = "true", num_args = 1, default_value_t = true)]
+    search: bool,
 
 }
