@@ -14,5 +14,9 @@ pub struct Cli {
     /// Select the selection mode to use.
     #[arg(short, long, value_enum, default_value_t = SelectionMode::Single)]
     mode: SelectionMode,
-    
+
+    /// The comment displayed in the header of the UX
+    #[arg(short, long)]
+    comment: Option<String>,
+
 }
