@@ -31,4 +31,7 @@ pub struct Cli {
     #[arg(long = "search-mode", value_enum, default_value_t = SearchMode::Fuzzy)]
     search_mode: SearchMode,
 
+    /// Allows to use regex in search.
+    #[arg(long = "search-regex", default_missing_value = "true", num_args = 1, default_value_t = true)]
+    search_regex: bool,
 }
