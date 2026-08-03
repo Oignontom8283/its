@@ -9,7 +9,7 @@ pub struct Cli {
 
     /// The index of the item to select by default.
     #[arg(short, long, default_value_t = 0)]
-    index: u64,
+    index: usize,
 
     /// The displayer to use for the UX.
     #[arg(short, long, alias = "ux", visible_alias = "ux", value_parser = PossibleValuesParser::new(displayers_ux()), default_value = "WaySee")]
@@ -21,7 +21,7 @@ pub struct Cli {
 
     /// The maximum number of items to display in the UX. (if not provided, the default UX selected max value will be used.)
     #[arg(long)]
-    max: Option<u64>,
+    max: Option<usize>,
 
     /// Select the selection mode to use.
     #[arg(short, long, value_enum, default_value_t = SelectionMode::Single)]
