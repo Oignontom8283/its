@@ -43,6 +43,10 @@ pub struct Cli {
     #[arg(long = "search-default", default_value = "")]
     search_default: String,
 
+    /// Script to transform the search string. (e.g., for uppercase or lowercase search string stransformations)
+    #[arg(long = "search-transform")]
+    search_transform: Option<String>,
+
     /// Select the search mode to use.
     #[arg(long = "search-mode", value_enum, default_value_t = SearchMode::Fuzzy)]
     search_mode: SearchMode,
@@ -54,4 +58,5 @@ pub struct Cli {
     /// Allows to use regex in search.
     #[arg(long = "search-regex", default_missing_value = "true", num_args = 1, default_value_t = true)]
     search_regex: bool,
+
 }
