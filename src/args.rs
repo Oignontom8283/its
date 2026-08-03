@@ -1,6 +1,6 @@
 
-use clap::{Parser};
-use crate::common::{SearchMode, SelectionMode};
+use clap::{Parser, builder::PossibleValuesParser};
+use crate::common::{SearchMode, SelectionMode, displayers_ux};
 
 
 #[derive(Parser, Debug)]
@@ -10,6 +10,10 @@ pub struct Cli {
     /// The index of the item to select by default.
     #[arg(short, long, default_value_t = 0)]
     index: u64,
+
+    /// The displayer to use for the UX.
+    #[arg(short, long, alias = "ux", visible_alias = "ux", value_parser = PossibleValuesParser::new(displayers_ux()), default_value = "WaySee")]
+    displayer: String,
 
     /// Select the selection mode to use.
     #[arg(short, long, value_enum, default_value_t = SelectionMode::Single)]
