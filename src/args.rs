@@ -32,7 +32,7 @@ pub struct Cli {
     comment: Option<String>,
     
     /// Enable search mode.
-    #[arg(long, num_args = 1, default_missing_value = "true", num_args = 1, default_value_t = true)]
+    #[arg(long, num_args = 1, action = clap::ArgAction::SetFalse)]
     search: bool,
 
     /// The default search string.
