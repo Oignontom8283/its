@@ -30,11 +30,15 @@ pub struct Cli {
     /// The comment displayed in the header of the UX
     #[arg(short, long)]
     comment: Option<String>,
+
+    /// Portion of the screen used by the displayer, if supported (e.g., "50%"). (/!\ Ignored by displayers that do not declare this capability.)
+    #[arg(short = 'e', long)]
+    height: Option<String>,
     
     /// Enable search mode.
     #[arg(long, num_args = 1, action = clap::ArgAction::SetFalse)]
     search: bool,
-
+    
     /// The default search string.
     #[arg(long = "search-default", default_value = "")]
     search_default: String,
