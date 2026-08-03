@@ -19,6 +19,10 @@ pub struct Cli {
     #[arg(short, long)]
     separator: Option<String>,
 
+    /// The maximum number of items to display in the UX. (if not provided, the default UX selected max value will be used.)
+    #[arg(long)]
+    max: Option<u64>,
+
     /// Select the selection mode to use.
     #[arg(short, long, value_enum, default_value_t = SelectionMode::Single)]
     mode: SelectionMode,
