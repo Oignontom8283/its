@@ -43,6 +43,10 @@ pub struct Cli {
     #[arg(long = "search-mode", value_enum, default_value_t = SearchMode::Fuzzy)]
     search_mode: SearchMode,
 
+    /// The script to use for script search mode. (e.g., Bash, Python, PowerShell, etc.) (/!\ only used if search-mode is set to Script)
+    #[arg(long = "search-script")]
+    search_script: Option<String>,
+
     /// Allows to use regex in search.
     #[arg(long = "search-regex", default_missing_value = "true", num_args = 1, default_value_t = true)]
     search_regex: bool,
