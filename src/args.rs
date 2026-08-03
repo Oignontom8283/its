@@ -15,6 +15,10 @@ pub struct Cli {
     #[arg(short, long, alias = "ux", visible_alias = "ux", value_parser = PossibleValuesParser::new(displayers_ux()), default_value = "WaySee")]
     displayer: String,
 
+    /// The separator used to separate the display value from the returned value.
+    #[arg(short, long)]
+    separator: Option<String>,
+
     /// Select the selection mode to use.
     #[arg(short, long, value_enum, default_value_t = SelectionMode::Single)]
     mode: SelectionMode,
