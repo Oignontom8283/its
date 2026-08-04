@@ -15,9 +15,9 @@ pub struct Cli {
     #[arg(short, long, alias = "ux", visible_alias = "ux", value_parser = PossibleValuesParser::new(displayers_ux()), default_value = "WaySee")]
     displayer: String,
 
-    /// The separator used to separate the display value from the returned value.
-    #[arg(short, long)]
-    separator: Option<String>,
+    /// The separator used to separate the displays (columns) value from the returned value. (e.g., "col1|value" or "col1;col2|value")
+    #[arg(short, long, default_value = "|")]
+    separator: String,
 
     /// The maximum number of items to display in the UX. (if not provided, the default UX selected max value will be used.)
     #[arg(long)]
