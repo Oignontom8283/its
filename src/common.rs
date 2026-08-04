@@ -18,8 +18,8 @@ pub enum SearchMode {
     Exact,
     /// Fuzzy search mode. Matches the search string approximately.
     Fuzzy,
-    /// Script search mode. Matches the search string using a custom script (e.g., Bash, Python, PowerShell, etc.).
-    Script,
+    /// Command search mode. Matches the search string using a custom command (e.g., Bash, Python, PowerShell, etc.).
+    Cmd,
 }
 
 /// Returns a list of available displayers for the UX.
