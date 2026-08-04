@@ -59,4 +59,7 @@ pub struct Cli {
     #[arg(long = "search-regex", default_missing_value = "true", num_args = 1, default_value_t = true)]
     search_regex: bool,
 
+    /// Command to preview the selected item. (e.g., 'cat {}', 'cat {value}', 'cat {1}')
+    #[arg(long = "preview-cmd")]
+    preview_cmd: Option<String>,
 }
