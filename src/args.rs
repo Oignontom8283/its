@@ -19,6 +19,10 @@ pub struct Cli {
     #[arg(short, long, default_value = "|")]
     separator: String,
 
+    /// The separator used to separate columns in the display. (e.g., "col1;col2;col3")
+    #[arg(short, long, default_value = ";")]
+    column_separator: String,
+
     /// The maximum number of items to display in the UX. (if not provided, the default UX selected max value will be used.)
     #[arg(long)]
     max: Option<usize>,
