@@ -12,8 +12,8 @@ pub struct Cli {
     index: usize,
 
     /// The displayer to use for the UX.
-    #[arg(short, long, alias = "ux", visible_alias = "ux", value_parser = PossibleValuesParser::new(displayers_ux()), default_value = "WaySee")]
-    displayer: String,
+    #[arg(short, long, alias = "displayer", visible_alias = "displayer", value_parser = PossibleValuesParser::new(displayers_ux()), default_value = "WaySee")]
+    ux: String,
 
     /// The separator used to separate the displays (columns) value from the returned value. (e.g., "col1|value" or "col1;col2|value")
     #[arg(short, long, default_value = "|")]
