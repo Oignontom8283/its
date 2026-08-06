@@ -40,7 +40,7 @@ pub struct Cli {
     height: Option<String>,
     
     /// Enable search mode.
-    #[arg(long, num_args = 1, action = clap::ArgAction::SetFalse)]
+    #[arg(long, default_missing_value = "true", num_args = 1, default_value_t = true)]
     search: bool,
     
     /// The default search string.
