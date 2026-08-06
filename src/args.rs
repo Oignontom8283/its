@@ -55,6 +55,10 @@ pub struct Cli {
     #[arg(long = "search-mode", value_enum, default_value_t = SearchMode::Fuzzy)]
     search_mode: SearchMode,
 
+    /// Value push to the search engine (fuzzy, exact, cmd, etc.) to specify where to search.
+    #[arg(long = "search-haystack", default_value = "{full}")]
+    search_haystack: String,
+
     /// The command to use for script search mode. (e.g., Bash, Python, PowerShell, etc.) (/!\ only used if search-mode is set to Script)
     #[arg(long = "search-cmd")]
     search_cmd: Option<String>,
