@@ -70,4 +70,8 @@ pub struct Cli {
     /// Command to preview the selected item. (e.g., 'cat {}', 'cat {value}', 'cat {1}')
     #[arg(long = "preview-cmd")]
     preview_cmd: Option<String>,
+
+    /// Portion of the screen used by the preview window, if supported (e.g., "50%").
+    #[arg(long = "preview-windows", default_value = "50%")]
+    preview_windows: String,
 }
