@@ -1,6 +1,7 @@
 
 use clap::{Parser, builder::PossibleValuesParser};
-use crate::common::{SearchMode, SelectionMode, displayers_ux};
+use crate::common::{SearchMode, SelectionMode};
+use crate::utils::{displayers_ux};
 
 
 #[derive(Parser, Debug)]

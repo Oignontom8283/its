@@ -21,8 +21,3 @@ pub enum SearchMode {
     /// Command search mode. Matches the search string using a custom command (e.g., Bash, Python, PowerShell, etc.).
     Cmd,
 }
-
-/// Returns a list of available displayers for the UX.
-pub fn displayers_ux() -> Vec<&'static str> {
-    vec!["WaySee"]
-} 
