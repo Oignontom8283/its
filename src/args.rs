@@ -17,15 +17,15 @@ pub struct Cli {
     ux: String,
 
     /// The separator used to separate the displays (columns) value from the returned value. (e.g., "col1|value" or "col1;col2|value")
-    #[arg(short, long, default_value = "|")]
+    #[arg(short = 'S', long, default_value = "|")]
     separator: String,
 
     /// The separator used to separate columns in the display. (e.g., "col1;col2;col3")
-    #[arg(short, long, default_value = ";")]
+    #[arg(short = 'D', long, default_value = ";")]
     delimiter: String,
 
     /// The maximum number of items to display in the UX. (if not provided, the default UX selected max value will be used.)
-    #[arg(long)]
+    #[arg(short = 'M', long)]
     max: Option<usize>,
 
     /// Select the selection mode to use.
@@ -37,8 +37,8 @@ pub struct Cli {
     comment: Option<String>,
 
     /// Portion of the screen used by the displayer, if supported (e.g., "50%"). (/!\ Ignored by displayers that do not declare this capability.)
-    #[arg(short = 'e', long)]
-    height: Option<String>,
+    #[arg(short, long)]
+    size: Option<String>,
     
     /// Enable search mode.
     #[arg(long, default_missing_value = "true", num_args = 1, default_value_t = true)]
@@ -73,6 +73,6 @@ pub struct Cli {
     preview_cmd: Option<String>,
 
     /// Portion of the screen used by the preview window, if supported (e.g., "50%").
-    #[arg(long = "preview-windows", default_value = "50%")]
-    preview_windows: String,
+    #[arg(long = "preview-size", default_value = "50%")]
+    preview_size: String,
 }
