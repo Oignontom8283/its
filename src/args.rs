@@ -37,8 +37,8 @@ pub struct Cli {
     comment: Option<String>,
 
     /// Portion of the screen used by the displayer, if supported (e.g., "50%"). (/!\ Ignored by displayers that do not declare this capability.)
-    #[arg(short = 'e', long)]
-    height: Option<String>,
+    #[arg(short, long)]
+    size: Option<String>,
     
     /// Enable search mode.
     #[arg(long, default_missing_value = "true", num_args = 1, default_value_t = true)]
@@ -73,6 +73,6 @@ pub struct Cli {
     preview_cmd: Option<String>,
 
     /// Portion of the screen used by the preview window, if supported (e.g., "50%").
-    #[arg(long = "preview-windows", default_value = "50%")]
-    preview_windows: String,
+    #[arg(long = "preview-size", default_value = "50%")]
+    preview_size: String,
 }
