@@ -24,7 +24,7 @@ pub struct Cli {
     #[arg(short = 'D', long, default_value = ";")]
     delimiter: String,
 
-    /// The maximum number of items to display in the UX. (if not provided, the default UX selected max value will be used.)
+    /// The maximum number of items to display in the UX. (Only in Intrinsic SizingMode)
     #[arg(short = 'M', long)]
     max: Option<usize>,
 
@@ -36,7 +36,7 @@ pub struct Cli {
     #[arg(short, long)]
     comment: Option<String>,
 
-    /// Portion of the screen used by the displayer, if supported (e.g., "50%"). (/!\ Ignored by displayers that do not declare this capability.)
+    /// Portion of the screen used by the displayer/ux, if supported (e.g., "50%") (Only in Extrinsic SizingMode)
     #[arg(short, long)]
     size: Option<String>,
     
